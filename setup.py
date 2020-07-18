@@ -3,12 +3,14 @@ from distutils.core import setup
 from glob import glob
 
 PACKAGE_NAME = 'minescrubber_core'
-PACKAGE_VERSION = '0.0.1'
+PACKAGE_VERSION = '0.2'
 
 setup(
     name=PACKAGE_NAME,
     version=PACKAGE_VERSION,
-    description='The classic game of minesweeper',
+    description=(
+        'A core backend implementation for the classic game of minesweeper'
+    ),
     author='Alok Gandhi',
     author_email='alok.gandhi2002@gmail.com',
     url='https://github.com/alok1974/minescrubber_core',
@@ -25,7 +27,7 @@ setup(
     install_requires=[
     ],
     license='MIT',
-    download_url='',
+    download_url='https://github.com/alok1974/cataner/archive/v0.2.tar.gz',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: End Users/Desktop',
