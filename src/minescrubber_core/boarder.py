@@ -40,6 +40,10 @@ class Board:
         return self.display(show_all=False)
 
     @property
+    def nb_mines(self):
+        return self._nb_mines
+
+    @property
     def data(self):
         return self._data
 
