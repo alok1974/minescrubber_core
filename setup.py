@@ -3,7 +3,7 @@ from distutils.core import setup
 from glob import glob
 
 PACKAGE_NAME = 'minescrubber_core'
-PACKAGE_VERSION = '0.2'
+PACKAGE_VERSION = '0.1'
 
 setup(
     name=PACKAGE_NAME,
@@ -27,7 +27,7 @@ setup(
     install_requires=[
     ],
     license='MIT',
-    download_url='https://github.com/alok1974/cataner/archive/v0.2.tar.gz',
+    download_url='https://github.com/alok1974/cataner/archive/v0.1.tar.gz',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: End Users/Desktop',
