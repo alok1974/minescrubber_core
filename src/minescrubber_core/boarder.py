@@ -6,6 +6,9 @@ from . import cellar
 
 
 class Board:
+    MIN_CELLS = 5
+    MAX_CELLS = 16
+
     def __init__(self, width=9, height=9, nb_mines=10):
         self._validate_args(
             width=width,
@@ -33,7 +36,15 @@ class Board:
         self._data = self._generate_board_data()
 
         self._swept_slots = []
-        self._selected_mines = []
+        self._flagged_slots = []
+
+    @property
+    def minimum_nb_cells(self):
+        return self._minimum_nb_cells
+
+    @property
+    def maximum_nb_cells(self):
+        return self._maximum_nb_cells
 
     @property
     def state(self):
@@ -44,12 +55,24 @@ class Board:
         return self._nb_mines
 
     @property
+    def nb_flagged(self):
+        return len(self._flagged_slots)
+
+    @property
     def data(self):
         return self._data
 
     @property
     def mine_slots(self):
-        return self._mine_slots
+        return sorted(self._mine_slots)
+
+    @property
+    def flagged_slots(self):
+        return sorted(self._flagged_slots)
+
+    @property
+    def covered_slots(self):
+        return sorted([cell.slot for cell in self.cells if cell.is_covered])
 
     @property
     def cells(self):
@@ -122,12 +145,20 @@ class Board:
         out.append(line)
         return '\n'.join(out)
 
-    @property
-    def mines(self):
-        return self._selected_mines
+    def flag(self, cell):
+        if cell.is_uncovered:
+            return
 
-    def stepped_on_mine(self, cell):
-        self._selected_mines.append(cell)
+        if cell.is_flagged:
+            cell.unflag()
+            self._flagged_slots.remove(cell.slot)
+        else:
+            cell.flag()
+            self._flagged_slots.append(cell.slot)
+
+    def uncover_all(self):
+        for cell in self.cells:
+            cell.uncover()
 
     def sweep(self, cell):
         self._sweep_cell(cell)
@@ -139,7 +170,9 @@ class Board:
                     self.sweep(adj_cell)
 
     def _sweep_cell(self, cell):
-        cell.uncover()
+        if not cell.is_flagged:
+            cell.uncover()
+
         if cell.slot not in self._swept_slots:
             self._swept_slots.append(cell.slot)
 
@@ -231,6 +264,16 @@ class Board:
         return f'{header}\n{body}\n{footer}'
 
     def _validate_args(self, width, height, nb_mines):
+        allowed_width = self.MIN_CELLS < width < self.MAX_CELLS
+        allowed_height = self.MIN_CELLS < height < self.MAX_CELLS
+        if not allowed_width or not allowed_height:
+            error_msg = (
+                f'Both `width={width}` and '
+                f'`height={height}`` should be between '
+                f'{self.MIN_CELLS} and {self.MAX_CELLS}'
+            )
+            raise RuntimeError(error_msg)
+
         nb_tiles = width * height
         if nb_mines > nb_tiles:
             error_msg = (

@@ -1,28 +1,17 @@
-import collections
+import enum
 
 
-def _declare_constants(obj_name, **name_value_dict):
-    "A named tuple generator used for declaring contants"
-    ConstantContainer = collections.namedtuple(
-        obj_name,
-        name_value_dict.keys(),
-    )
-    return ConstantContainer(*name_value_dict.values())
+@enum.unique
+class CELL_DATA(enum.Enum):
+    state = 'state'
+    value = 'value'
 
 
-CELL_DATA = _declare_constants(
-    obj_name='CELL_DATA',
-    state='state',
-    value='value'
-)
-
-
-CELL_STATE = _declare_constants(
-    obj_name='CELL_STATE',
-    covered=0,
-    uncovered=1,
-    flagged=2
-)
+@enum.unique
+class CELL_STATE(enum.Enum):
+    covered = 0
+    uncovered = 1
+    flagged = 2
 
 
 MINE_INT = -1
@@ -81,6 +70,10 @@ class Cell:
         return self._state == CELL_STATE.flagged
 
     @property
+    def is_unflagged(self):
+        return self._state != CELL_STATE.flagged
+
+    @property
     def has_mine(self):
         return self._value == MINE_INT
 
@@ -89,6 +82,9 @@ class Cell:
 
     def flag(self):
         self._state = CELL_STATE.flagged
+
+    def unflag(self):
+        self._state = CELL_STATE.covered
 
     def cover(self):
         self._state = CELL_STATE.covered
