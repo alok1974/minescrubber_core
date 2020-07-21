@@ -59,6 +59,10 @@ class Board:
         return len(self._flagged_slots)
 
     @property
+    def max_flagged(self):
+        return self.nb_mines == self.nb_flagged
+
+    @property
     def data(self):
         return self._data
 
@@ -153,6 +157,9 @@ class Board:
             cell.unflag()
             self._flagged_slots.remove(cell.slot)
         else:
+            if self.max_flagged:
+                return
+
             cell.flag()
             self._flagged_slots.append(cell.slot)
 
