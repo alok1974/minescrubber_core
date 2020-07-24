@@ -37,6 +37,7 @@ class Board:
 
         self._swept_slots = []
         self._flagged_slots = []
+        self._last_swept = []
 
     @property
     def minimum_nb_cells(self):
@@ -114,6 +115,10 @@ class Board:
     def nb_slots(self):
         return self._nb_slots
 
+    @property
+    def last_swept(self):
+        return self._last_swept
+
     def get_cell(self, slot):
         return self.data[slot]
 
@@ -167,18 +172,23 @@ class Board:
         for cell in self.cells:
             cell.uncover()
 
-    def sweep(self, cell):
+    def sweep(self, cell, is_first_call=True):
+        if is_first_call:
+            self._last_swept = []
+
         self._sweep_cell(cell)
         adj_cells = self._get_adjacent_cells(cell)
         if not any([adj_cell.has_mine for adj_cell in adj_cells]):
             map(self._sweep_cell, adj_cells)
             for adj_cell in adj_cells:
                 if adj_cell.slot not in self._swept_slots:
-                    self.sweep(adj_cell)
+                    self.sweep(adj_cell, is_first_call=False)
 
     def _sweep_cell(self, cell):
         if not cell.is_flagged:
             cell.uncover()
+            if cell.slot not in self._last_swept:
+                self._last_swept.append(cell.slot)
 
         if cell.slot not in self._swept_slots:
             self._swept_slots.append(cell.slot)
