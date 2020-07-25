@@ -1,3 +1,4 @@
+import os
 import unittest
 import collections
 import random
@@ -71,12 +72,11 @@ def move(slot, op):
 class TestBoard(unittest.TestCase):
     def setUp(self):
         random.seed(50)
-        self.width = random.randint(9, 20)
-        self.height = random.randint(9, 20)
+        self.width = random.randint(5, 16)
+        self.height = random.randint(5, 16)
         self.nb_mines = int(self.width * self.height * 0.12)
         self.board_hash = (
-            'ddd3b7dd14cb8a3cbd290d60bb5818'
-            'cbd44391633c20316c787606b392e0f9b4'
+            '41a2e501c2500ec3a6208e96d2360f66e226c258cf0f19533192b215b89402d6'
         )
 
         ts = get_test_slots(self.width, self.height)
@@ -151,14 +151,12 @@ class TestBoard(unittest.TestCase):
         current_hash = hashlib.sha256(
             str(self.board).encode('utf-8')
         ).hexdigest()
-        if not current_hash == self.board_hash:
-            hint_msg = (
-                'Maybe the dev env is not set, '
-                'use export MINESCRUBBER_DEV=1'
-            )
+
+        if 'MINESCRUBBER_DEV' not in os.environ:
+            hint_msg = 'The dev env is not set, use export MINESCRUBBER_DEV=1'
             raise ValueError(hint_msg)
-        else:
-            self.assertEqual(current_hash, self.board_hash)
+
+        self.assertEqual(current_hash, self.board_hash)
 
     def test_nb_mines(self):
         nb_mines_on_generatedboard = len(

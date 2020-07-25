@@ -3,15 +3,19 @@ import abc
 
 class UI(abc.ABC):
     @abc.abstractmethod
-    def refresh(self):
+    def init_board(self, board):
         ...
 
     @abc.abstractmethod
-    def game_over(self):
+    def refresh(self, board):
         ...
 
     @abc.abstractmethod
-    def game_solved(self):
+    def game_over(self, board):
+        ...
+
+    @abc.abstractmethod
+    def game_solved(self, board):
         ...
 
     @abc.abstractmethod
@@ -36,36 +40,27 @@ class UI(abc.ABC):
 
 
 class Controller:
-    def run(self, ui_class, pre_args=None, pre_kwargs=None, post_args=None,
-            post_kwargs=None):
+    def run(self, ui_class, pre_args=None, pre_kwargs=None, ui_args=None,
+            ui_kwargs=None, post_args=None, post_kwargs=None):
 
-        from . import boarder, gamer
+        from . import gamer
 
+        # Call pre callback
         pre_args = pre_args or []
         pre_kwargs = pre_kwargs or {}
         self.pre_callback(*pre_args, **pre_kwargs)
 
-        board = boarder.Board()
-        ui = ui_class(board=board)
-        game = gamer.Game(board=board, ui=ui)
+        # Create and run game
+        ui_args = post_args or []
+        ui_kwargs = post_kwargs or {}
+        ui = ui_class(*ui_args, **ui_kwargs)
+        gc = gamer.GameController(ui=ui)
+        gc.run()
 
-        self._do_wiring(ui, game)
-        ui.run()
-
+        # Call post callback
         post_args = post_args or []
         post_kwargs = post_kwargs or {}
         self.post_callback(*post_args, **post_kwargs)
-
-    @staticmethod
-    def _do_wiring(ui, game):
-        wiring = {
-            ui.cell_selected_signal: game.select,
-            ui.cell_flagged_signal: game.flag,
-            ui.new_game_signal: game.reset
-        }
-        for connect_from, connect_to in wiring.items():
-            wiring_method = getattr(connect_from, ui.wiring_method_name)
-            wiring_method(connect_to)
 
     @abc.abstractmethod
     def pre_callback(self, *args, **kwargs):

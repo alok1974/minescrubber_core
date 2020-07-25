@@ -1,9 +1,18 @@
-class Game:
-    def __init__(self, board, ui):
-        self.board = board
+from . import boarder
+
+
+class GameController:
+    def __init__(self, ui):
+        self.board = boarder.Board()
         self.ui = ui
+        self.ui.init_board(board=self.board)
+        self._do_wiring()
+
         self._is_game_over = False
         self._is_game_solved = False
+
+    def run(self):
+        self.ui.run()
 
     def select(self, slot):
         if self._is_game_over or self._is_game_solved:
@@ -20,7 +29,7 @@ class Game:
             self._game_solved()
             return
 
-        self.ui.refresh(self.board)
+        self.ui.refresh(self.board, init_image=False)
 
     def flag(self, slot):
         if self._is_game_over or self._is_game_solved:
@@ -41,6 +50,16 @@ class Game:
         self._is_game_over = False
         self._is_game_solved = False
         self.ui.refresh(self.board)
+
+    def _do_wiring(self):
+        wiring = [
+            (self.ui.cell_selected_signal, self.select),
+            (self.ui.cell_flagged_signal, self.flag),
+            (self.ui.new_game_signal, self.reset),
+        ]
+        for connect_from, connect_to in wiring:
+            wiring_method = getattr(connect_from, self.ui.wiring_method_name)
+            wiring_method(connect_to)
 
     def _is_solved(self):
         return self.board.mine_slots == sorted(
