@@ -29,7 +29,7 @@ class GameController:
             self._game_solved()
             return
 
-        self.ui.refresh(self.board)
+        self.ui.refresh(self.board, init_image=False)
 
     def flag(self, slot):
         if self._is_game_over or self._is_game_solved:
